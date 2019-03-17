@@ -1,7 +1,7 @@
 #!/usr/bin/osascript
 (*
 Script originally written by Naupaka Zimmerman, modified by iandol
-August 10, 2017
+August 10, 2017, modified by oashour March 16 2019
 
 MIT License
 
@@ -116,7 +116,7 @@ on run argv
 	
 	tell application "Bookends"
 		-- get a list of all groups in open library
-		set allGroups to Çevent ToySRGPNÈ given Çclass PATHÈ:"true"
+		set allGroups to Â«event ToySRGPNÂ» given Â«class PATHÂ»:"true"
 		-- prepend the default bookends groups
 		set allGroups to "All" & return & "Hits" & return & "Attachments" & return & "Selection" & return & allGroups
 		-- split up those groups into elements of an array
@@ -134,10 +134,20 @@ on run argv
 		set AppleScript's text item delimiters to oldDelimiters -- change back to default
 	end if
 	
+	--  get the library's name and trim off the extension
+	tell application "Bookends"
+		set libName to name of front library window
+	end tell
+	
+	set libName to (the reverse of every character of libName) as string
+	set x to the offset of "." in libName
+	set libName to (text (x + 1) thru -1 of libName)
+	set libName to (the reverse of every character of libName) as string
+	
 	-- loop over each folder matching the pattern and export each to a bibtex file
 	repeat with myGroup in myGroupArray
-		set thisFile to (myPath & "/" & (myGroup as string) & ".bib") as POSIX file
-		set thisJSONFile to (myPath & "/" & (myGroup as string) & ".json") as POSIX file
+		set thisFile to (myPath & "/" & libName & "_" & (myGroup as string) & ".bib") as POSIX file
+		set thisJSONFile to (myPath & "/" & libName & "_" & (myGroup as string) & ".json") as POSIX file
 		set quotedName to quoted form of POSIX path of thisFile
 		set quotedJSONName to quoted form of POSIX path of thisJSONFile
 		set myFile to open for access thisFile with write permission
@@ -146,7 +156,7 @@ on run argv
 		try
 			tell application "Bookends"
 				-- get a list of all unique reference IDs in the specified group 
-				set myListString to Çevent ToySRUIDÈ myGroup as string
+				set myListString to Â«event ToySRUIDÂ» myGroup as string
 			end tell
 			-- convert to list 
 			set AppleScript's text item delimiters to return
@@ -178,11 +188,11 @@ on run argv
 				
 				-- fetch the BibTeX
 				tell application "Bookends"
-					set myBibTex to Çevent ToySGUIDÈ thisList given Çclass RRTFÈ:"false", string:"bibtex"
+					set myBibTex to Â«event ToySGUIDÂ» thisList given Â«class RRTFÂ»:"false", string:"bibtex"
 				end tell
 				
 				-- write out as UTF-8, from: http://macscripter.net/viewtopic.php?id=24534
-				write myBibTex to myFile as Çclass utf8È
+				write myBibTex to myFile as Â«class utf8Â»
 				
 				-- update progress bar        
 				set progress completed steps to thisLoop
